@@ -1,0 +1,30 @@
+{
+  "name": "setup-k6-action",
+  "version": "1.2.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "package": "ncc build src/index.ts",
+    "test": "npm run package; gh act push"
+  },
+  "keywords": [],
+  "author": "step-security",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/chmodr": "1.0.3",
+    "@types/fs-extra": "11.0.4",
+    "@types/node": "24.12.2",
+    "@vercel/ncc": "^0.38.4",
+    "typescript": "6.0.3"
+  },
+  "dependencies": {
+    "@actions/core": "^2.0.3",
+    "@actions/exec": "^2.0.0",
+    "@actions/github": "^9.1.1",
+    "@actions/tool-cache": "^3.0.1",
+    "@octokit/rest": "^22.0.1",
+    "axios": "^1.15.2",
+    "chmodr": "^2.0.2",
+    "fs-extra": "^11.3.4"
+  }
+}
