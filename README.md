@@ -1,0 +1,1 @@
+# setup-k6-action
