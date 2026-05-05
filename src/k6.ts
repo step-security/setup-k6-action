@@ -1,6 +1,8 @@
 // Module to setup k6
 import * as core from '@actions/core';
 import * as tc from '@actions/tool-cache';
+import * as crypto from 'crypto';
+import * as fs from 'fs';
 import { Octokit } from "@octokit/rest";
 import { chmodr } from 'chmodr';
 import { renameSync } from 'fs-extra';
@@ -42,15 +44,51 @@ async function getLatestK6Version(): Promise<string> {
  * @param {Arch} architecture - The architecture for which to download the k6 binary
  * @return {*}  {Promise<[string, string]>} The path where the k6 binary is extracted and the name of the binary
  */
+function computeSHA256(filePath: string): string {
+    const hash = crypto.createHash('sha256')
+    hash.update(fs.readFileSync(filePath))
+    return hash.digest('hex')
+}
+
+function parseChecksumFile(content: string, filename: string): string | undefined {
+    for (const line of content.split('\n')) {
+        const parts = line.trim().split(/\s+/)
+        if (parts.length >= 2 && parts[1] === filename) {
+            return parts[0]
+        }
+    }
+    return undefined
+}
+
 async function downloadAndExtractK6Binary(version: string, os: OS, architecture: Arch): Promise<[string, string]> {
     const k6BinaryName = `k6-v${version}-${os}-${architecture}`
     const zipExtension = os === OS.LINUX ? 'tar.gz' : 'zip'
-    const downloadUrl = `${BaseK6DownloadURL}/v${version}/${k6BinaryName}.${zipExtension}`
+    const archiveFilename = `${k6BinaryName}.${zipExtension}`
+    const downloadUrl = `${BaseK6DownloadURL}/v${version}/${archiveFilename}`
+    const checksumUrl = `${BaseK6DownloadURL}/v${version}/k6-v${version}-checksums.txt`
 
     core.info(`Downloading k6 version ${version} from ${downloadUrl} for ${os} ${architecture}`)
 
-
     const download = await tc.downloadTool(downloadUrl)
+
+    try {
+        core.info(`Verifying checksum for ${archiveFilename}`)
+        const checksumFile = await tc.downloadTool(checksumUrl)
+        const expectedHash = parseChecksumFile(fs.readFileSync(checksumFile, 'utf8'), archiveFilename)
+        if (!expectedHash) {
+            core.warning(`Could not find checksum for ${archiveFilename} in checksums file, skipping verification`)
+        } else {
+            const actualHash = computeSHA256(download)
+            if (actualHash !== expectedHash) {
+                core.warning(`Checksum mismatch for ${archiveFilename}: expected ${expectedHash}, got ${actualHash}`)
+            } else {
+                core.info(`Checksum verified for ${archiveFilename}`)
+            }
+        }
+    } catch (err) {
+        core.warning(`Checksum verification skipped: ${err instanceof Error ? err.message : err}`)
+    }
+
     const extractedPath = await tc.extractTar(download)
 
     return [extractedPath, k6BinaryName]
