@@ -39,7 +39,6 @@
     "url": "https://github.com/step-security/setup-k6-action/issues"
   },
   "engines": {
-    "node": ">=24",
-    "npm": ">=11"
+    "node": ">=24"
   }
 }
