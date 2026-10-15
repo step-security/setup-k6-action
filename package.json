@@ -1,6 +1,8 @@
 {
-  "name": "setup-k6-action",
+  "name": "@step-security/setup-k6-action",
+  "private": true,
   "version": "1.2.1",
+  "packageManager": "npm@10.9.2",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -9,6 +11,7 @@
   },
   "keywords": [],
   "author": "step-security",
+  "publisher": "step-security",
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/chmodr": "1.0.3",
@@ -23,8 +26,20 @@
     "@actions/github": "^9.1.1",
     "@actions/tool-cache": "^3.0.1",
     "@octokit/rest": "^22.0.1",
-    "axios": "^1.15.2",
+    "axios": "^1.20.0",
     "chmodr": "^2.0.2",
     "fs-extra": "^11.3.4"
+  },
+  "homepage": "https://github.com/step-security/setup-k6-action#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/step-security/setup-k6-action.git"
+  },
+  "bugs": {
+    "url": "https://github.com/step-security/setup-k6-action/issues"
+  },
+  "engines": {
+    "node": ">=24",
+    "npm": ">=11"
   }
 }
